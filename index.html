@@ -1,0 +1,273 @@
+<html><head><base href="https://raw.githubusercontent.com/eladhartuv/" target="_blank">
+<meta charset="UTF-8">
+<title>Excesos 2024 CC.OO DAMM (El Puig)</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #f0f2f5;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .background-text {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 15vw;
+        color: rgba(200, 200, 200, 0.1);
+        z-index: -1;
+        animation: float 20s infinite linear;
+        white-space: nowrap;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+    }
+
+    .container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    h1 {
+        color: #e74c3c;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    button {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    button:hover {
+        background-color: #2980b9;
+    }
+
+    #resultados {
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .exceso {
+        color: #e74c3c;
+        font-weight: bold;
+    }
+
+    .diferencia-positiva {
+        color: #e74c3c;
+    }
+
+    .diferencia-negativa {
+        color: #27ae60;
+    }
+
+    input[type="number"] {
+        width: 60px;
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    #importeTotal {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        text-align: right;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #27ae60;  /* Cambiado a verde */
+    }
+
+    #saldoNegativo {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #ffebee;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #e74c3c;
+        display: none;
+    }
+</style>
+</head>
+<body>
+    <div class="background-text">CC.OO CC.OO CC.OO</div>
+    <div class="container">
+        <h1>Excesos 2024 CC.OO DAMM (El Puig)</h1>
+
+        <div id="resultados">
+            <table id="tablaResultados">
+                <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th>Días Laborables</th>
+                        <th>Días Trabajados</th>
+                        <th>Diferencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="importeTotal"></div>
+            <div id="saldoNegativo">¡SALDO NEGATIVO!</div>
+        </div>
+    </div>
+
+<script>
+function calcularDiasLaborables(año, mes) {
+    const diasLaborablesPorMes = {
+        0: 21, // Enero
+        1: 21, // Febrero
+        2: 18, // Marzo
+        3: 21, // Abril
+        4: 22, // Mayo
+        5: 20, // Junio
+        6: 23, // Julio
+        7: 20, // Agosto
+        8: 20, // Septiembre
+        9: 22, // Octubre
+        10: 20, // Noviembre
+        11: 17  // Diciembre
+    };
+    
+    return diasLaborablesPorMes[mes];
+}
+
+function actualizarDiferencia(tr) {
+    const diasLaborables = parseInt(tr.children[1].textContent);
+    const diasTrabajados = parseInt(tr.children[2].querySelector('input').value || 0);
+    const diferencia = diasTrabajados - diasLaborables;
+    
+    const tdDiferencia = tr.children[3];
+    tdDiferencia.textContent = diferencia;
+    tdDiferencia.className = diferencia > 0 ? 'diferencia-positiva' : 
+                            diferencia < 0 ? 'diferencia-negativa' : '';
+    
+    calcularTotales();
+}
+
+function calcularTotales() {
+    const filas = document.querySelectorAll('#tablaResultados tbody tr:not(:last-child)');
+    let totalDiasLaborables = 0;
+    let totalDiasTrabajados = 0;
+
+    filas.forEach(fila => {
+        totalDiasLaborables += parseInt(fila.children[1].textContent);
+        totalDiasTrabajados += parseInt(fila.children[2].querySelector('input').value || 0);
+    });
+
+    const diferenciaTotalAbsoluta = totalDiasTrabajados - totalDiasLaborables;
+
+    const trTotal = document.querySelector('#tablaResultados tbody tr:last-child');
+    if (trTotal) {
+        trTotal.innerHTML = `
+            <td><strong>TOTAL 2024</strong></td>
+            <td><strong>${totalDiasLaborables}</strong></td>
+            <td><strong>${totalDiasTrabajados}</strong></td>
+            <td class="${diferenciaTotalAbsoluta > 0 ? 'diferencia-positiva' : 'diferencia-negativa'}">
+                <strong>${diferenciaTotalAbsoluta}</strong>
+            </td>
+        `;
+    }
+
+    const importeTotal = document.getElementById('importeTotal');
+    const saldoNegativo = document.getElementById('saldoNegativo');
+
+    if (diferenciaTotalAbsoluta > 0) {
+        const importe = diferenciaTotalAbsoluta * 162.9166;
+        importeTotal.innerHTML = `Importe Total: ${importe.toFixed(2)}€`;
+        importeTotal.style.display = 'block';
+        saldoNegativo.style.display = 'none';
+    } else if (diferenciaTotalAbsoluta < 0) {
+        importeTotal.style.display = 'none';
+        saldoNegativo.style.display = 'block';
+    } else {
+        importeTotal.style.display = 'none';
+        saldoNegativo.style.display = 'none';
+    }
+}
+
+function calcularExcesos() {
+    const tbody = document.querySelector('#tablaResultados tbody');
+    tbody.innerHTML = '';
+
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    meses.forEach((mes, index) => {
+        const diasLaborablesMes = calcularDiasLaborables(2024, index);
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${mes}</td>
+            <td>${diasLaborablesMes}</td>
+            <td><input type="number" min="0" value="0" onchange="actualizarDiferencia(this.parentNode.parentNode)"></td>
+            <td>0</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    const trTotal = document.createElement('tr');
+    trTotal.innerHTML = `
+        <td><strong>TOTAL 2024</strong></td>
+        <td><strong>0</strong></td>
+        <td><strong>0</strong></td>
+        <td><strong>0</strong></td>
+    `;
+    tbody.appendChild(trTotal);
+    
+    calcularTotales();
+}
+
+window.onload = calcularExcesos;
+</script>
+
+</body>
+</html>
